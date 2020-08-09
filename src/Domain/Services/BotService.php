@@ -4,6 +4,7 @@ namespace PhpBundle\Messenger\Domain\Services;
 
 use FOS\UserBundle\Model\FosUserInterface;
 use GuzzleHttp\Client;
+use Packages\User\Domain\Services\AuthService;
 use PhpBundle\User\Domain\Exceptions\UnauthorizedException;
 use PhpBundle\User\Domain\Interfaces\UserRepositoryInterface;
 use PhpLab\Core\Domain\Base\BaseCrudService;
@@ -30,15 +31,19 @@ class BotService extends BaseCrudService implements BotServiceInterface
     private $botRepository;
     private $security;
     private $userRepository;
+    private $authService;
 
     public function __construct(
         BotRepositoryInterface $botRepository, 
         UserRepositoryInterface $userRepository, 
-        Security $security)
+        //Security $security,
+        AuthService $authService
+    )
     {
         $this->botRepository = $botRepository;
-        $this->security = $security;
+        //$this->security = $security;
         $this->userRepository = $userRepository;
+        $this->authService = $authService;
     }
 
     public function authByToken(string $botToken): BotEntity {
@@ -49,7 +54,7 @@ class BotService extends BaseCrudService implements BotServiceInterface
             throw new UnauthorizedException();
         }
         $userEntity = $this->userRepository->oneById($botEntity->getUserId());
-        $this->security->getToken()->setUser($userEntity);
+        $this->authService->authByIdentity($userEntity);
         return $botEntity;
     }
 }

@@ -13,27 +13,45 @@ use PhpLab\Rest\Base\BaseCrudApiController;
 use PhpLab\Rest\Libs\Serializer\JsonRestSerializer;
 use PhpBundle\Messenger\Domain\Interfaces\ChatServiceInterface;
 use PhpBundle\Messenger\Domain\Interfaces\Services\MessageServiceInterface;
+use RocketLab\Bundle\Rest\Base\BaseCrudController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use yii\base\Module;
 
-class MessageController extends BaseCrudApiController
+class MessageController extends BaseCrudController
 {
     
-    use AccessTrait;
+    //use AccessTrait;
 
     private $authenticator;
     private $chatService;
 
-    public function __construct(ChatServiceInterface $chatService, MessageServiceInterface $messageService, Authenticator $authenticator)
+    public function __construct(
+        string $id,
+        Module $module,
+        array $config = [],
+        ChatServiceInterface $chatService,
+        MessageServiceInterface $messageService
+    )
+    {
+        parent::__construct($id, $module, $config);
+        $this->service = $messageService;
+    }
+
+    public function _______construct(
+
+        Authenticator $authenticator
+    )
     {
         $this->service = $messageService;
         $this->authenticator = $authenticator;
         $this->chatService = $chatService;
-        $this->checkAuth();
+        //$this->checkAuth();
     }
     
-    public function allByChatId(Request $request, int $chatId = null) {
+    public function actionAllByChatId(Request $request, int $chatId = null) {
+        return [];
         //dd($chatId);
         $chatEntity = $this->chatService->oneById($chatId);
         $chatCollection = $this->chatService->all();

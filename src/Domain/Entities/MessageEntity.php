@@ -2,6 +2,7 @@
 
 namespace PhpBundle\Messenger\Domain\Entities;
 
+use Packages\User\Domain\Entities\IdentityEntity;
 use PhpBundle\User\Domain\Entities\Identity;
 use PhpLab\Core\Domain\Interfaces\Entity\EntityIdInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -80,7 +81,7 @@ class MessageEntity implements EntityIdInterface
         $this->chatId = $chatId;
     }
 
-    public function getAuthor(): ?UserInterface
+    public function getAuthor(): ?IdentityEntity
     {
         return $this->author;
     }
@@ -88,7 +89,7 @@ class MessageEntity implements EntityIdInterface
     /**
      * @param mixed $author
      */
-    public function setAuthor(UserInterface $author): void
+    public function setAuthor(IdentityEntity $author): void
     {
         $this->author = $author;
     }

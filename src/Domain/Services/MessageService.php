@@ -4,6 +4,7 @@ namespace PhpBundle\Messenger\Domain\Services;
 
 use FOS\UserBundle\Model\FosUserInterface;
 use GuzzleHttp\Client;
+use Packages\User\Domain\Services\AuthService;
 use PhpBundle\User\Domain\Exceptions\UnauthorizedException;
 use PhpBundle\User\Domain\Interfaces\UserRepositoryInterface;
 use PhpLab\Core\Domain\Base\BaseCrudService;
@@ -22,15 +23,13 @@ use PhpLab\Sandbox\Socket\Domain\Entities\SocketEventEntity;
 use PhpLab\Sandbox\Socket\Domain\Enums\SocketEventEnum;
 use PhpLab\Sandbox\Socket\Domain\Libs\SocketDaemon;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class MessageService extends BaseCrudService implements MessageServiceInterface
 {
 
     private $chatService;
-    private $security;
+    //private $security;
     private $flowRepository;
     private $botRepository;
     private $userRepository;
@@ -38,21 +37,30 @@ class MessageService extends BaseCrudService implements MessageServiceInterface
     private $socketDaemon;
 
     public function __construct(
-        MessageRepositoryInterface $repository,
-        BotService $botService,
+        MessageRepositoryInterface $repository
+        //BotService $botService
+    )
+    {
+        $this->repository = $repository;
+    }
+
+    public function ____construct(
+
         UserRepositoryInterface $userRepository,
         BotRepositoryInterface $botRepository,
         FlowRepositoryInterface $flowRepository,
         ChatService $chatService,
-        Security $security,
+        //Security $security,
+        AuthService $authService,
         SocketDaemon $socketDaemon)
     {
-        $this->repository = $repository;
+
         $this->botRepository = $botRepository;
         $this->flowRepository = $flowRepository;
         $this->userRepository = $userRepository;
         $this->chatService = $chatService;
-        $this->security = $security;
+        //$this->security = $security;
+        $this->auth = $authService;
         $this->botService = $botService;
         $this->socketDaemon = $socketDaemon;
     }
@@ -60,7 +68,7 @@ class MessageService extends BaseCrudService implements MessageServiceInterface
     public function createEntity(array $attributes = []): MessageEntity
     {
         $entity = parent::createEntity($attributes);
-        $user = $this->security->getUser();
+        $user = $this->auth->getIdentity();
         $entity->setAuthorId($user->getId());
         return $entity;
     }
@@ -105,7 +113,7 @@ class MessageService extends BaseCrudService implements MessageServiceInterface
 
         foreach ($chatEntity->getMembers() as $memberEntity) {
 
-            $isMe = $memberEntity->getUserId() == $this->security->getUser()->getId();
+            $isMe = $memberEntity->getUserId() == $this->auth->getIdentity()->getId();
             $event = new SocketEventEntity;
             $event->setUserId($memberEntity->getUserId());
             $event->setName('sendMessage');
