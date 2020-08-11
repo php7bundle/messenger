@@ -11,6 +11,7 @@ use PhpLab\Core\Enums\Http\HttpHeaderEnum;
 use PhpLab\Rest\Base\BaseCrudApiController;
 use PhpLab\Rest\Libs\SymfonyAuthenticator;
 use PhpBundle\Messenger\Domain\Interfaces\ChatServiceInterface;
+use Psr\Container\ContainerInterface;
 use RocketLab\Bundle\Rest\Base\BaseCrudController;
 use RocketLab\Bundle\Rest\Serializer;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,13 +19,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use RocketLab\Bundle\Rest\Base\BaseController;
 use yii\base\Module;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 
 class ChatController extends BaseCrudController
 {
 
     //use AccessTrait;
 
-    public function __construct(string $id, Module $module, array $config = [], ChatServiceInterface $chatService)
+    public function __construct(
+        string $id,
+        Module $module,
+        array $config = [],
+        // ChatServiceInterface $chatService,
+        ContainerInterface $container
+    )
     {
         parent::__construct($id, $module, $config);
         $this->serializer = [
@@ -32,7 +41,8 @@ class ChatController extends BaseCrudController
             'normalizer' => $this->createNormalizer(),
             'context' => $this->normalizerContext(),
         ];
-        $this->service = $chatService;
+        //$this->service = $chatService;
+        $this->service = $container->get(ChatServiceInterface::class);
     }
 
     /*public function index(Request $request): JsonResponse

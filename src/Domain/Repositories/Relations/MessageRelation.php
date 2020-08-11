@@ -24,10 +24,10 @@ class MessageRelation implements RelationConfigInterface
 
     private $container;
 
-    /*public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-    }*/
+    }
 
     public function primaryKey() {
         return ['id'];
@@ -35,15 +35,14 @@ class MessageRelation implements RelationConfigInterface
 
     public function relations()
     {
-
         return [
             'chat' => [
                 'type' => RelationEnum::CALLBACK,
                 'callback' => function (Collection $collection) {
                     $m2m = new OneToOne;
-                    $m2m->foreignModel = new ChatRepository(new Manager, new MemberRepository(new Manager, new IdentityRepository(new Manager)));
+                    $m2m->foreignModel = $this->container->get(ChatRepository::class);
                     $m2m->foreignField = 'chatId';
-                    $m2m->foreignContainerField = 'category';
+                    $m2m->foreignContainerField = 'chat';
                     $m2m->run($collection);
                 },
             ],
@@ -51,7 +50,7 @@ class MessageRelation implements RelationConfigInterface
                 'type' => RelationEnum::CALLBACK,
                 'callback' => function (Collection $collection) {
                     $m2m = new OneToOne;
-                    $m2m->foreignModel = new IdentityRepository(new Manager);
+                    $m2m->foreignModel = $this->container->get(IdentityRepository::class);
                     $m2m->foreignField = 'authorId';
                     $m2m->foreignContainerField = 'author';
                     $m2m->run($collection);
